@@ -39,7 +39,15 @@ def normalize_to_canonical(df, bank_name):
 
     df = df.loc[:, ~df.columns.duplicated()]
     df["bank"] = bank_name
-    df["date"] = df["date"].astype(str)
+
+    # FIX: normalize date exactly like old data_processor.py
+    df["date"] = pd.to_datetime(
+        df["date"],
+        dayfirst=True,
+        errors="coerce"
+    )
+    df = df.dropna(subset=["date", "particulars"])
+    df["date"] = df["date"].dt.strftime("%Y-%m-%d")
 
     required = ["date", "particulars", "dr", "cr", "bank"]
     return df[required]
