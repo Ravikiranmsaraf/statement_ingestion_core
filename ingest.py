@@ -40,14 +40,19 @@ def normalize_to_canonical(df, bank_name):
     df = df.loc[:, ~df.columns.duplicated()]
     df["bank"] = bank_name
 
-    # FIX: normalize date exactly like old data_processor.py
-    df["date"] = pd.to_datetime(
-        df["date"],
-        dayfirst=True,
-        errors="coerce"
-    )
+    df["date"] = pd.to_datetime(df["date"], dayfirst=True, errors="coerce")
     df = df.dropna(subset=["date", "particulars"])
     df["date"] = df["date"].dt.strftime("%Y-%m-%d")
+
+    for col in ["dr", "cr"]:
+        df[col] = (
+            df[col]
+            .astype(str)
+            .str.replace(",", "", regex=False)
+            .str.strip()
+            .replace("", "0")
+            .astype(float)
+        )
 
     required = ["date", "particulars", "dr", "cr", "bank"]
     return df[required]
