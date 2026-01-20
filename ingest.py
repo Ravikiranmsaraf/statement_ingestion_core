@@ -37,16 +37,12 @@ def normalize_to_canonical(df, bank_name):
         if col in COLUMN_MAP
     })
 
+    df = df.loc[:, ~df.columns.duplicated()]
     df["bank"] = bank_name
+    df["date"] = df["date"].astype(str)
 
-    required = {"date", "particulars", "dr", "cr", "bank"}
-    missing = required - set(df.columns)
-
-    if missing:
-        raise ValueError(f"Canonicalization failed, missing columns: {missing}")
-
-    return df[list(required)]
-
+    required = ["date", "particulars", "dr", "cr", "bank"]
+    return df[required]
 
 def parse_to_canonical(csv_path: str, bank_name: str) -> pd.DataFrame:
     """
