@@ -53,4 +53,5 @@ def parse_to_canonical(csv_path: str, bank_name: str) -> pd.DataFrame:
     UI-agnostic ingestion.
     CSV → canonical DataFrame
     """
+    df = normalize_to_canonical(df, bank_name)
     return parse_bank_csv(csv_path, bank_name)
