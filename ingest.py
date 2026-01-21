@@ -15,6 +15,8 @@ def normalize_to_canonical(df, bank_name):
         "Description": "particulars",
         "Narration": "particulars",
         "Details": "particulars",
+        "Remarks": "particulars",
+        "Transaction Remarks": "particulars",
 
         # debit
         "Debit": "dr",
