@@ -29,31 +29,18 @@ def normalize_to_canonical(df, bank_name):
         "Deposit": "cr",
         "Deposits": "cr",
         "CR": "cr",
-
-        # bank
-        "Bank": "bank",
     }
 
-    df = df.rename(columns={
-        col: COLUMN_MAP[col]
-        for col in df.columns
-        if col in COLUMN_MAP
-    })
-
+    df = df.rename(columns={c: COLUMN_MAP[c] for c in df.columns if c in COLUMN_MAP})
     df = df.loc[:, ~df.columns.duplicated()]
     df["bank"] = bank_name
 
+    # --- date ---
     df["date"] = pd.to_datetime(df["date"], dayfirst=True, errors="coerce")
-    required = ["date", "particulars"]
-    missing = [c for c in required if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns after normalization: {missing}")
-
-    df = df.dropna(subset=required)
-
-
+    df = df.dropna(subset=["date"])
     df["date"] = df["date"].dt.strftime("%Y-%m-%d")
 
+    # --- amounts ---
     for col in ["dr", "cr"]:
         df[col] = (
             df[col]
@@ -64,8 +51,17 @@ def normalize_to_canonical(df, bank_name):
             .astype(float)
         )
 
+    # ✅ MATCH OLD data_processor.py BEHAVIOR
+    df["particulars"] = df["particulars"].fillna("")
+    df["dr"] = df["dr"].fillna(0.0)
+    df["cr"] = df["cr"].fillna(0.0)
+
+    # ✅ FILTER NON-TRANSACTION ROWS
+    df = df[(df["dr"] != 0) | (df["cr"] != 0)]
+
     required = ["date", "particulars", "dr", "cr", "bank"]
     return df[required]
+
 
 def parse_to_canonical(csv_path: str, bank_name: str) -> pd.DataFrame:
     """
