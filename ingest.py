@@ -14,6 +14,7 @@ def normalize_to_canonical(df, bank_name):
         "Particulars": "particulars",
         "Description": "particulars",
         "Narration": "particulars",
+        "Details": "particulars",
 
         # debit
         "Debit": "dr",
@@ -41,7 +42,14 @@ def normalize_to_canonical(df, bank_name):
     df["bank"] = bank_name
 
     df["date"] = pd.to_datetime(df["date"], dayfirst=True, errors="coerce")
-    df = df.dropna(subset=["date", "particulars"])
+    required = ["date", "particulars"]
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns after normalization: {missing}")
+
+    df = df.dropna(subset=required)
+
+
     df["date"] = df["date"].dt.strftime("%Y-%m-%d")
 
     for col in ["dr", "cr"]:
