@@ -1,4 +1,4 @@
-from statement_ingestion_core.canonical import CANONICAL_COLUMNS    
+from statement_ingestion_core.canonical import CANONICAL_COLUMNS, CANONICAL_ORDER    
 from statement_ingestion_core.bank_column_map import BANK_COLUMN_MAP
 from statement_ingestion_core.bank_parser import parse_bank_csv
 from statement_ingestion_core.mapper import map_to_canonical
