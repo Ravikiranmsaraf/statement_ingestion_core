@@ -94,6 +94,8 @@ def get_validated_df(file_path, bank_name):
 # 4. CLEAN & STANDARDIZE (INTERNAL)
 # ---------------------------------
 def clean_and_standardize(df: pd.DataFrame, bank_name: str) -> pd.DataFrame:
+    attrs = df.attrs.copy()   # SAVE METADATA
+
     for col in ['Debit', 'Credit', 'Running_Balance']:
         if col in df.columns:
             df[col] = (
@@ -108,9 +110,10 @@ def clean_and_standardize(df: pd.DataFrame, bank_name: str) -> pd.DataFrame:
 
     df['Bank'] = bank_name
 
-    # # Keep only meaningful rows
-    # df = df[(df['Debit'] != 0) | (df['Credit'] != 0)].copy()
-    return df.reset_index(drop=True)
+    df = df.reset_index(drop=True)
+    df.attrs = attrs          # RESTORE METADATA
+    return df
+
 
 # ---------------------------------
 # 5. PUBLIC ENTRY POINT (USED BY UI)
